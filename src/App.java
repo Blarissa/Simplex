@@ -1,11 +1,48 @@
+import io.github.mrrefactoring.Fraction;
+
 public class App {
 
     private static final double EPSILON = 1.0e-8;
 
+    private static String[] printHeader( double[][] tableau) {
+        int l = tableau[0].length;
+        int c = tableau.length;
+        
+        String linha[] = new String[l];
+        String[] coluna = new String[c];
+        
+        linha[0] = "Z";
+        linha[l - 1] = "b";
+        coluna[0] = "Z";
+        
+        for (int i = 1; i < l - 1; i++) 
+            linha[i] = "x" + (i + 1);        
+        
+        for (int i = 1, j = c; i < c; i++) 
+            coluna[i] = "x" + (i + j);
+
+        String cabecalho = String.format("%-10s|", "");
+
+        for (String item : linha) 
+            cabecalho += String.format("%-10s|", item);
+             
+        cabecalho += "\n" + "-".repeat(c * 25) + "\n"; 
+        System.out.print(cabecalho);
+
+        return coluna;
+    }
+
     private static void printTableau(double[][] tableau) {
-        for (double[] row : tableau) {
+        String[] coluna = printHeader(tableau);              
+
+        int i = 0;
+        for (double[] row : tableau) {            
+            System.out.printf("%-10s|", coluna[i]);
+            i++;
+            
             for (double value : row) {
-                System.out.printf("%10.4f ", value);
+                Fraction f = new Fraction(value);       
+                System.out.printf("%-10s|", f.toFraction());
             }
             System.out.println();
         }
@@ -17,7 +54,7 @@ public class App {
         double minValue = 0.0;
         int lastRow = tableau.length - 1;
 
-        for (int j = 0; j < tableau[lastRow].length - 1; ++j) {
+        for (int j = 0; j < tableau[lastRow].length - 1; ++j) {            
             if (tableau[lastRow][j] < minValue) {
                 minValue = tableau[lastRow][j];
                 pivotColumn = j;
@@ -49,7 +86,7 @@ public class App {
         int n = tableau[0].length;
         double pivotValue = tableau[pivotRow][pivotColumn];
 
-        // Divide the pivot row by the pivot value
+        // Divide o pivô pela entrada para torná-lo 1 
         for (int j = 0; j < n; ++j) {
             tableau[pivotRow][j] /= pivotValue;
         }
@@ -83,39 +120,31 @@ public class App {
             int pivotRow = findPivotRow(tableau, pivotColumn);
 
             if (pivotRow == -1) {
-                System.out.println("Unbounded solution");
+                System.out.println("A solução é ilimitada.");
                 return;
             }
 
             performPivot(tableau, pivotRow, pivotColumn);
 
-            System.out.println("Tableau after pivoting:");
+            System.out.println("Tableau depois de pivoteamento:");
             printTableau(tableau);
         }
 
-        System.out.println("Optimal solution found:");
+        System.out.println("Solução ótima encontrada:");
         printTableau(tableau);
     }
 
     public static void main(String[] args) {
-        // Example problem
-        // Maximize Z = 3x1 + 2x2
-        // Subject to:
-        // x1 + x2 <= 4
-        // x1 <= 2
-        // x2 <= 3
-        // x1, x2 >= 0
 
         double[][] tableau = {
-            { 1, 1, 1, 0, 0, 4 },
-            { 1, 0, 0, 1, 0, 2 },
-            { 0, 1, 0, 0, 1, 3 },
-            { -3, -2, 0, 0, 0, 0 }
+            {  1,  1,  1,   1, 1, 0, 0, 15 },
+            {  7,  5,  3,   2, 0, 1, 0, 120 },
+            {  3,  5, 10,  15, 0, 0, 1, 100 },
+            { -4, -5, -9, -11, 0, 0, 0, 0 }
         };
 
-        System.out.println("Initial tableau:");
+        System.out.println("Tableau inicial:");
         printTableau(tableau);
-
         simplex(tableau);
     }
 }
